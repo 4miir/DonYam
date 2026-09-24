@@ -73,19 +73,24 @@
         }
 
         .glass-modal {
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(244, 63, 94, 0.25);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
         }
 
+        /* Fix clipping issue on headers */
         .persian-header {
             text-shadow: 0 0 35px rgba(244, 63, 94, 0.7), 0 0 15px rgba(245, 158, 11, 0.4);
+            padding-bottom: 0.25rem;
+            padding-top: 0.25rem;
+            display: inline-block;
         }
 
         .welcome-header {
             text-shadow: 0 0 40px rgba(244, 63, 94, 0.8), 0 0 20px rgba(251, 113, 133, 0.5);
+            padding-bottom: 0.2rem;
         }
 
         ::-webkit-scrollbar {
@@ -127,9 +132,11 @@
                 </span>
             </div>
             
-            <h1 class="persian-header font-persian text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-300 to-amber-200 mt-2 mb-3 tracking-wide leading-relaxed">
-                بهت افتخار ميكنم HR من❤️
-            </h1>
+            <div class="w-full text-center">
+                <h1 class="persian-header font-persian text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-300 to-amber-200 my-2 tracking-wide leading-normal">
+                    بهت افتخار ميكنم HR من❤️
+                </h1>
+            </div>
             <p class="text-slate-400 text-sm max-w-lg mx-auto font-light leading-relaxed">
                 اكتبي نوتاتك هنا بكل سهولة؛ الترقيم ينزل تلقائياً (1، 2، 3). وعند الضغط على النسخ سيتم استخراج النوتات فقط للمدير جاهزة ومنسقة.
             </p>
@@ -253,6 +260,36 @@
         </div>
     </div>
 
+    <!-- Edit Note Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-xl w-full rounded-3xl p-6 shadow-2xl border border-indigo-500/30 relative">
+            <button id="close-edit-modal-btn" class="absolute left-5 top-5 text-slate-400 hover:text-white p-1 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p-2.5 bg-indigo-500/20 text-indigo-400 rounded-2xl border border-indigo-500/30">
+                    <i data-lucide="edit-3" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">تعديل النوتة المسجلة</h3>
+                    <p class="text-xs text-slate-400">يمكنك التعديل وإضافة النقاط بسهولة ثم الضغط على حفظ</p>
+                </div>
+            </div>
+
+            <textarea id="edit-note-textarea" rows="8" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-indigo-500 select-all resize-none shadow-inner"></textarea>
+
+            <div class="mt-5 flex gap-3 justify-end">
+                <button id="cancel-edit-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition">
+                    إلغاء
+                </button>
+                <button id="save-edit-btn" class="bg-gradient-to-r from-indigo-600 to-rose-600 hover:from-indigo-500 hover:to-rose-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-indigo-600/20 active:scale-95 cursor-pointer">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    <span>حفظ التعديلات</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Export Modal -->
     <div id="export-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="glass-card max-w-2xl w-full rounded-3xl p-6 shadow-2xl border border-slate-700 relative">
@@ -334,6 +371,7 @@
         let notesRef = null;
 
         let notesList = [];
+        let currentlyEditingIndex = -1;
         const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
         async function initApp() {
@@ -535,9 +573,14 @@
                             </div>
                             <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-line">${escapeHtml(item.text)}</p>
                         </div>
-                        <button onclick="window.deleteNote(${index})" class="text-slate-500 hover:text-rose-400 transition p-1.5 opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer" title="حذف النوتة">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <div class="flex items-center gap-1">
+                            <button onclick="window.openEditNoteModal(${index})" class="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/20 p-2 rounded-xl transition cursor-pointer" title="تعديل النوتة">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="window.deleteNote(${index})" class="text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 p-2 rounded-xl transition cursor-pointer" title="حذف النوتة">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
 
@@ -550,6 +593,9 @@
         function setupEventListeners() {
             const noteInput = document.getElementById('note-input');
             setupAutoNumbering(noteInput);
+
+            const editNoteTextarea = document.getElementById('edit-note-textarea');
+            setupAutoNumbering(editNoteTextarea);
 
             const form = document.getElementById('note-entry-form');
             form.addEventListener('submit', async (e) => {
@@ -589,6 +635,11 @@
             document.getElementById('export-report-btn').addEventListener('click', openExportModal);
             document.getElementById('close-modal-btn').addEventListener('click', closeExportModal);
             document.getElementById('modal-copy-btn').addEventListener('click', copyExportText);
+
+            // Edit Modal Events
+            document.getElementById('close-edit-modal-btn').addEventListener('click', closeEditNoteModal);
+            document.getElementById('cancel-edit-btn').addEventListener('click', closeEditNoteModal);
+            document.getElementById('save-edit-btn').addEventListener('click', saveEditedNote);
         }
 
         window.deleteNote = async function(index) {
@@ -597,6 +648,39 @@
             renderNotes();
             showToast('تم حذف النوتة', 'trash-2');
         };
+
+        window.openEditNoteModal = function(index) {
+            currentlyEditingIndex = index;
+            const note = notesList[index];
+            if (!note) return;
+
+            const editTextarea = document.getElementById('edit-note-textarea');
+            editTextarea.value = note.text;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        };
+
+        function closeEditNoteModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+            currentlyEditingIndex = -1;
+        }
+
+        async function saveEditedNote() {
+            if (currentlyEditingIndex < 0 || currentlyEditingIndex >= notesList.length) return;
+
+            const editTextarea = document.getElementById('edit-note-textarea');
+            const newText = editTextarea.value.trim();
+
+            if (!newText) {
+                showToast('يرجى عدم ترك النوتة فارغة', 'alert-circle');
+                return;
+            }
+
+            notesList[currentlyEditingIndex].text = newText;
+            await saveNotesToFirebase();
+            renderNotes();
+            closeEditNoteModal();
+            showToast('تم حفظ التعديلات بنجاح ✨', 'check-circle');
+        }
 
         function openExportModal() {
             let compiledText = ``;

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>بهت افتخار ميكنم HR من❤️ - نظام التقارير الأسبوعية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                        },
+                        amberGold: '#f59e0b'
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        persian: ['Amiri', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Anti-Zoom and Desktop UI Strict Locking */
+        html, body {
+            touch-action: manipulation;
+            -ms-touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            overflow-x: hidden;
+            height: 100%;
+            min-height: 100vh;
+            zoom: 100%;
+        }
+
+        /* Essential for preventing iOS/Laptop auto-zoom on inputs */
+        textarea, input, button {
+            font-size: 16px !important;
+            touch-action: manipulation;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 70%, #090d16 100%);
+            color: #f8fafc;
+            font-size: 15px;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .persian-header {
+            text-shadow: 0 0 35px rgba(244, 63, 94, 0.7), 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .welcome-header {
+            text-shadow: 0 0 40px rgba(244, 63, 94, 0.8), 0 0 20px rgba(251, 113, 133, 0.5);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f43f5e;
+        }
+    </style>
+</head>
+<body class="font-sans pb-16 antialiased selection:bg-brand-500 selection:text-white">
+
+    <div id="top-refresh-banner" class="w-full bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-indigo-500/20 border-b border-rose-500/30 backdrop-blur-md py-2.5 px-4 text-center sticky top-0 z-40 flex items-center justify-center gap-3 shadow-lg">
+        <button onclick="window.location.reload()" class="flex items-center gap-2 hover:opacity-80 transition cursor-pointer">
+            <i data-lucide="rotate-cw" class="w-4 h-4 text-rose-400 animate-spin" style="animation-duration: 4s;"></i>
+            <span class="text-sm font-semibold text-rose-200 tracking-wide font-persian text-base">
+                نفسم ريفرش كن صفحه رو قبلي كه چيزي بنويسي
+            </span>
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+        </button>
+    </div>
+
+    <div id="app" class="max-w-6xl mx-auto px-6 pt-8">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-10 relative">
+            <div class="inline-block relative">
+                <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 blur-md opacity-50 animate-pulse"></div>
+                <span class="relative px-5 py-1.5 rounded-full text-xs font-bold bg-brand-500/20 text-brand-300 border border-brand-500/40 inline-flex items-center gap-2 mb-3 shadow-inner">
+                    <i data-lucide="heart" class="w-4 h-4 text-brand-400 fill-brand-400 animate-bounce"></i>
+                    متابعة وتجهيز التقرير الأسبوعي
+                </span>
+            </div>
+            
+            <h1 class="persian-header font-persian text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-300 to-amber-200 mt-2 mb-3 tracking-wide leading-relaxed">
+                بهت افتخار ميكنم HR من❤️
+            </h1>
+            <p class="text-slate-400 text-sm max-w-lg mx-auto font-light leading-relaxed">
+                اكتبي نوتاتك هنا بكل سهولة؛ الترقيم ينزل تلقائياً (1، 2، 3). وعند الضغط على النسخ سيتم استخراج النوتات فقط للمدير جاهزة ومنسقة.
+            </p>
+        </header>
+
+        <section class="grid grid-cols-3 gap-5 mb-8">
+            <!-- Days Remaining to Thursday -->
+            <div class="glass-card rounded-2xl p-5 flex flex-col justify-between border-t-2 border-t-brand-500 hover:border-brand-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                    <span>موعد تسليم الخميس</span>
+                    <i data-lucide="clock" class="w-4 h-4 text-brand-400"></i>
+                </div>
+                <div class="mt-2">
+                    <div id="days-remaining" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-amber-300">--</div>
+                    <div class="text-xs text-slate-400 mt-1" id="days-remaining-label">متبقي على نهاية الأسبوع</div>
+                </div>
+            </div>
+
+            <!-- Total Notes Count -->
+            <div class="glass-card rounded-2xl p-5 flex flex-col justify-between border-t-2 border-t-emerald-500 hover:border-emerald-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                    <span>إجمالي النقاط المسجلة</span>
+                    <i data-lucide="hash" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+                <div class="mt-2">
+                    <div id="total-notes-count" class="text-3xl font-black text-emerald-400">0</div>
+                    <div class="text-xs text-slate-400 mt-1">نقطة تم تدوينها بالكامل</div>
+                </div>
+            </div>
+
+            <!-- Sync Live Indicator -->
+            <div class="glass-card rounded-2xl p-5 flex flex-col justify-between border-t-2 border-t-indigo-500 hover:border-indigo-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                    <span>حالة المزامنة السحابية</span>
+                    <i data-lucide="wifi" class="w-4 h-4 text-indigo-400"></i>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="text-sm text-slate-100 font-bold">متزامنة ومباشرة الآن</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1">يصلك كل شيء تحفظه فوراً</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-12 gap-8">
+            
+            <!-- Left Input Column -->
+            <div class="col-span-12 lg:col-span-5">
+                <div class="glass-card rounded-3xl p-6 shadow-2xl sticky top-20 border border-slate-700/80">
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/60">
+                        <div class="p-2.5 bg-brand-500/15 rounded-2xl text-brand-400 border border-brand-500/20">
+                            <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-white">إضافة نوتة / نقطة جديدة</h2>
+                            <p class="text-xs text-slate-400 mt-0.5">اضغطي Enter للنزول لسطر جديد بترقيم تلقائي (1. 2. 3...)</p>
+                        </div>
+                    </div>
+
+                    <form id="note-entry-form" class="space-y-4">
+                        <div>
+                            <textarea id="note-input" rows="8" placeholder="1. اكتبي النقطة الأولى هنا..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 transition leading-relaxed shadow-inner resize-none select-text"></textarea>
+                        </div>
+
+                        <button type="submit" id="save-btn" class="w-full bg-gradient-to-r from-brand-600 via-rose-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-2xl shadow-xl shadow-brand-600/20 flex items-center justify-center gap-2 transition transform active:scale-[0.98] cursor-pointer">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            <span>حفظ النوتة فوراً</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Notes List Column -->
+            <div class="col-span-12 lg:col-span-7 space-y-4">
+                <div class="flex items-center justify-between bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 backdrop-blur-md">
+                    <div class="flex items-center gap-2.5">
+                        <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i>
+                        <h2 class="text-base font-bold text-white">سجل النوتات والنقاط المسجلة</h2>
+                    </div>
+
+                    <!-- Export Report Button -->
+                    <button id="export-report-btn" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-950/40 cursor-pointer">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span>تصدير/نسخ للمدير</span>
+                    </button>
+                </div>
+
+                <!-- List of Notes Container -->
+                <div id="notes-list-container" class="space-y-3.5">
+                    <!-- Dynamic Notes Loaded Here -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-lg z-50 flex items-center justify-center p-4 transition-all duration-500">
+        <div class="glass-modal max-w-md w-full rounded-3xl p-8 text-center relative transform transition-all duration-500 scale-100 border border-rose-500/30 shadow-2xl">
+            
+            <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-tr from-brand-600 via-rose-500 to-amber-400 p-0.5 shadow-xl shadow-rose-500/30 flex items-center justify-center">
+                <div class="w-full h-full bg-slate-950 rounded-full flex items-center justify-center">
+                    <i data-lucide="heart" class="w-10 h-10 text-brand-400 fill-brand-400 animate-pulse"></i>
+                </div>
+            </div>
+
+            <h2 class="welcome-header font-persian text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-300 to-amber-200 mb-3">
+                دوست دارم
+            </h2>
+            
+            <p class="text-slate-300 text-sm mb-6 font-light leading-relaxed">
+                أتمنى لك أسبوعاً جميلاً مليئاً بالإنجازات والتميّز دائماً ❤️
+            </p>
+
+            <button id="close-welcome-btn" class="w-full bg-gradient-to-r from-brand-600 to-rose-600 hover:from-brand-500 hover:to-rose-500 text-white font-bold py-3 px-6 rounded-2xl shadow-lg shadow-brand-600/30 transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                <span>دخول للتقرير</span>
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-2xl w-full rounded-3xl p-6 shadow-2xl border border-slate-700 relative">
+            <button id="close-modal-btn" class="absolute left-5 top-5 text-slate-400 hover:text-white p-1 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20">
+                    <i data-lucide="check-check" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">النوتات المنسقة للمدير (نقاط مجردة بدون تواريخ)</h3>
+                    <p class="text-xs text-slate-400">جاهزة للنسخ الفوري والإرسال مباشرة للمدير</p>
+                </div>
+            </div>
+
+            <textarea id="compiled-report-text" readonly class="w-full h-72 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-emerald-500 select-all resize-none shadow-inner"></textarea>
+
+            <div class="mt-5 flex gap-3 justify-end">
+                <button id="modal-copy-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-emerald-600/20 active:scale-95 cursor-pointer">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>نسخ النص فقط</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-8 left-8 bg-slate-900/95 border border-slate-700 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-24 opacity-0 z-50 backdrop-blur-md">
+        <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toast-message" class="text-sm font-semibold">تم الحفظ بنجاح</span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- STRICT ANTI-ZOOM EVENT LISTENERS ---
+        // 1. Prevent Ctrl/Cmd + Wheel zoom
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // 2. Prevent Keyboard Zoom (Ctrl/Cmd + '+', '-', '0', '=')
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '0' || e.key === '=' || e.keyCode === 187 || e.keyCode === 189)) {
+                e.preventDefault();
+            }
+        });
+
+        // 3. Prevent Pinch-to-zoom on touch devices / laptops
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+        document.addEventListener('gestureend', (e) => e.preventDefault());
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // --- APP STATE & FIRESTORE LOGIC ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fuz-weekly-report-v5';
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        let notesList = [];
+        const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        async function initApp() {
+            lucide.createIcons();
+            calculateCountdown();
+
+            // Setup welcome popup handler
+            document.getElementById('close-welcome-btn').addEventListener('click', () => {
+                document.getElementById('welcome-modal').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    document.getElementById('welcome-modal').classList.add('hidden');
+                }, 500);
+            });
+
+            // Auto-numbering setup
+            const noteInput = document.getElementById('note-input');
+            ensureFirstNumber(noteInput);
+
+            // Firebase Initialization
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            currentUser = user;
+                            subscribeToNotes();
+                        }
+                    });
+                } else {
+                    loadFromLocalStorage();
+                    renderNotes();
+                }
+            } catch (err) {
+                console.warn("Using LocalStorage fallback:", err);
+                loadFromLocalStorage();
+                renderNotes();
+            }
+
+            setupEventListeners();
+        }
+
+        function ensureFirstNumber(textarea) {
+            if (!textarea.value.trim()) {
+                textarea.value = "1. ";
+            }
+        }
+
+        function setupAutoNumbering(textarea) {
+            textarea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const cursorPos = textarea.selectionStart;
+                    const textBefore = textarea.value.substring(0, cursorPos);
+                    const textAfter = textarea.value.substring(cursorPos);
+                    
+                    const lines = textBefore.split('\n');
+                    const lastLine = lines[lines.length - 1];
+                    
+                    const match = lastLine.match(/^(\d+)\.\s*(.*)/);
+                    let nextNum = 1;
+                    
+                    if (match) {
+                        nextNum = parseInt(match[1], 10) + 1;
+                    } else {
+                        nextNum = lines.length + 1;
+                    }
+
+                    const newLine = `\n${nextNum}. `;
+                    textarea.value = textBefore + newLine + textAfter;
+                    textarea.selectionStart = textarea.selectionEnd = cursorPos + newLine.length;
+                }
+            });
+
+            textarea.addEventListener('focus', () => {
+                ensureFirstNumber(textarea);
+            });
+        }
+
+        function subscribeToNotes() {
+            if (!db || !currentUser) return;
+
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'weekly_reports', 'notes_data');
+
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && Array.isArray(data.items)) {
+                        notesList = data.items;
+                        renderNotes();
+                    }
+                } else {
+                    saveNotesToFirestore();
+                }
+            }, (error) => {
+                console.error("Firestore sync error:", error);
+                loadFromLocalStorage();
+                renderNotes();
+            });
+        }
+
+        async function saveNotesToFirestore() {
+            localStorage.setItem('fuz_notes_data_v5', JSON.stringify(notesList));
+
+            if (!db || !currentUser) return;
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'weekly_reports', 'notes_data');
+                await setDoc(docRef, {
+                    items: notesList,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Error saving notes:", e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('fuz_notes_data_v5');
+            if (saved) {
+                try {
+                    notesList = JSON.parse(saved);
+                } catch(e) {}
+            }
+        }
+
+        function calculateCountdown() {
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+
+            let daysLeft = 0;
+            if (dayOfWeek <= 4) {
+                daysLeft = 4 - dayOfWeek;
+            } else {
+                daysLeft = 7 - dayOfWeek + 4;
+            }
+
+            const elem = document.getElementById('days-remaining');
+            const label = document.getElementById('days-remaining-label');
+
+            if (daysLeft === 0) {
+                elem.textContent = 'اليوم الخميس !';
+                elem.className = 'text-2xl font-black text-rose-400 animate-pulse';
+                label.textContent = 'يوم تسليم التقرير للمدير';
+            } else {
+                elem.textContent = `${daysLeft} أيام`;
+                label.textContent = 'متبقي على نهاية الأسبوع (الخميس)';
+            }
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notes-list-container');
+            document.getElementById('total-notes-count').textContent = notesList.length;
+
+            if (notesList.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-10 text-center text-slate-400">
+                        <i data-lucide="notebook-pen" class="w-10 h-10 mx-auto mb-3 text-slate-500"></i>
+                        <p class="text-sm">لا توجد نوتات مسجلة بعد... اكتبي بالأعلى للحفظ المباشر</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = '';
+
+            notesList.forEach((item, index) => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'glass-card rounded-2xl p-4 transition-all hover:border-slate-600 group';
+
+                const numberBadge = notesList.length - index;
+
+                noteCard.innerHTML = `
+                    <div class="flex items-start justify-between gap-3.5">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-brand-500/20 text-brand-300 font-bold text-xs shrink-0 mt-0.5 border border-brand-500/30">
+                            #${numberBadge}
+                        </div>
+                        <div class="flex-1 select-text">
+                            <div class="flex items-center gap-2 mb-2 select-none">
+                                <span class="text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full">
+                                    ${item.dayName}
+                                </span>
+                                <span class="text-xs text-slate-400 font-mono">
+                                    ${item.dateStr} • ${item.timeStr}
+                                </span>
+                            </div>
+                            <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-line">${escapeHtml(item.text)}</p>
+                        </div>
+                        <button onclick="window.deleteNote(${index})" class="text-slate-500 hover:text-rose-400 transition p-1.5 opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer" title="حذف النوتة">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(noteCard);
+            });
+
+            lucide.createIcons();
+        }
+
+        function setupEventListeners() {
+            const noteInput = document.getElementById('note-input');
+            setupAutoNumbering(noteInput);
+
+            const form = document.getElementById('note-entry-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const text = noteInput.value.trim();
+
+                if (!text || text === "1.") {
+                    showToast('يرجى كتابة نوتة أو نقطة أولاً', 'alert-circle');
+                    return;
+                }
+
+                const now = new Date();
+                const dayName = ARABIC_DAYS[now.getDay()];
+                const dateStr = now.toLocaleDateString('en-GB');
+                const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+                const newNote = {
+                    id: Date.now(),
+                    text: text,
+                    dayName: dayName,
+                    dateStr: dateStr,
+                    timeStr: timeStr,
+                    timestamp: now.getTime()
+                };
+
+                notesList.unshift(newNote);
+
+                await saveNotesToFirestore();
+                renderNotes();
+
+                showToast('تم حفظ النوتة بنجاح ❤️', 'check-circle');
+                noteInput.value = '';
+                ensureFirstNumber(noteInput);
+            });
+
+            document.getElementById('export-report-btn').addEventListener('click', openExportModal);
+            document.getElementById('close-modal-btn').addEventListener('click', closeExportModal);
+            document.getElementById('modal-copy-btn').addEventListener('click', copyExportText);
+        }
+
+        window.deleteNote = async function(index) {
+            notesList.splice(index, 1);
+            await saveNotesToFirestore();
+            renderNotes();
+            showToast('تم حذف النوتة', 'trash-2');
+        };
+
+        function openExportModal() {
+            let compiledText = ``;
+
+            if (notesList.length === 0) {
+                compiledText = `لا توجد نوتات مسجلة هذا الأسبوع.`;
+            } else {
+                let noteCounter = 1;
+                const reversedNotes = [...notesList].reverse();
+
+                reversedNotes.forEach((item) => {
+                    const lines = item.text.split('\n');
+                    lines.forEach((line) => {
+                        const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                        if (cleanLine) {
+                            compiledText += `${noteCounter}. ${cleanLine}\n`;
+                            noteCounter++;
+                        }
+                    });
+                });
+            }
+
+            document.getElementById('compiled-report-text').value = compiledText.trim();
+            document.getElementById('export-modal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('export-modal').classList.add('hidden');
+        }
+
+        function copyExportText() {
+            const textarea = document.getElementById('compiled-report-text');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('تم نسخ النوتات النقية للمدير بنجاح!', 'copy');
+            closeExportModal();
+        }
+
+        function showToast(message, iconName = 'check-circle') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toastIcon.setAttribute('data-lucide', iconName);
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

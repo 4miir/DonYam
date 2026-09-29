@@ -214,24 +214,55 @@
             </div>
 
             <!-- Right Notes List Column -->
-            <div class="col-span-12 lg:col-span-7 space-y-4">
-                <div class="flex items-center justify-between bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 backdrop-blur-md">
-                    <div class="flex items-center gap-2.5">
-                        <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i>
-                        <h2 class="text-base font-bold text-white">سجل النوتات والنقاط المسجلة</h2>
+            <div class="col-span-12 lg:col-span-7 space-y-6">
+                
+                <!-- Current Active Report Header & Actions -->
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 backdrop-blur-md">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i>
+                            <h2 class="text-base font-bold text-white">سجل النوتات والنقاط المسجلة</h2>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <!-- Complete & Archive Button -->
+                            <button id="complete-report-btn" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-indigo-950/40 cursor-pointer">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-400"></i>
+                                <span>تم الانتهاء ✅</span>
+                            </button>
+
+                            <!-- Export Report Button -->
+                            <button id="export-report-btn" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/40 cursor-pointer">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                <span>تصدير/نسخ</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Export Report Button -->
-                    <button id="export-report-btn" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-950/40 cursor-pointer">
-                        <i data-lucide="copy" class="w-4 h-4"></i>
-                        <span>تصدير/نسخ للمدير</span>
-                    </button>
+                    <!-- List of Notes Container -->
+                    <div id="notes-list-container" class="space-y-3.5">
+                        <!-- Dynamic Notes Loaded Here -->
+                    </div>
                 </div>
 
-                <!-- List of Notes Container -->
-                <div id="notes-list-container" class="space-y-3.5">
-                    <!-- Dynamic Notes Loaded Here -->
+                <!-- Archived / Completed Reports Section -->
+                <div class="pt-6 border-t border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="archive" class="w-5 h-5 text-amber-400"></i>
+                            <h2 class="text-base font-bold text-slate-200">الأرشيف: التقارير المنتهية سابقاُ</h2>
+                        </div>
+                        <span id="archived-reports-count" class="text-xs font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20 px-3 py-1 rounded-full">
+                            0 تقارير مكتملة
+                        </span>
+                    </div>
+
+                    <!-- Archived Reports List Container -->
+                    <div id="archived-list-container" class="space-y-3">
+                        <!-- Dynamic Archived Reports Loaded Here -->
+                    </div>
                 </div>
+
             </div>
 
         </div>
@@ -319,6 +350,33 @@
         </div>
     </div>
 
+    <!-- View Archived Report Modal -->
+    <div id="view-archive-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-2xl w-full rounded-3xl p-6 shadow-2xl border border-amber-500/30 relative">
+            <button id="close-archive-modal-btn" class="absolute left-5 top-5 text-slate-400 hover:text-white p-1 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p-2.5 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20">
+                    <i data-lucide="archive" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 id="archive-modal-title" class="text-lg font-bold text-white">تفاصيل التقرير المكتمل</h3>
+                    <p id="archive-modal-subtitle" class="text-xs text-slate-400">استعراض التقرير المؤرشف ومحتوياته الكاملة</p>
+                </div>
+            </div>
+
+            <textarea id="archive-report-text" readonly class="w-full h-72 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-amber-500 select-all resize-none shadow-inner"></textarea>
+
+            <div class="mt-5 flex gap-3 justify-end">
+                <button id="archive-copy-btn" class="bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-amber-600/20 active:scale-95 cursor-pointer">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>نسخ النص</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-8 left-8 bg-slate-900/95 border border-slate-700 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-24 opacity-0 z-50 backdrop-blur-md">
         <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
@@ -371,8 +429,10 @@
 
         let database = null;
         let notesRef = null;
+        let archiveRef = null;
 
         let notesList = [];
+        let archivedReports = [];
         let currentlyEditingIndex = -1;
         const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
@@ -383,6 +443,7 @@
             // Instant Local Load for Zero Delay UI
             loadFromLocalStorage();
             renderNotes();
+            renderArchivedReports();
 
             // Setup welcome popup handler
             document.getElementById('close-welcome-btn').addEventListener('click', () => {
@@ -401,8 +462,10 @@
                 const app = initializeApp(firebaseConfig);
                 database = getDatabase(app);
                 notesRef = ref(database, 'weekly_notes');
+                archiveRef = ref(database, 'archived_reports');
 
                 subscribeToFirebaseNotes();
+                subscribeToFirebaseArchive();
             } catch (err) {
                 console.warn("Using LocalStorage fallback:", err);
                 updateSyncStatus(false);
@@ -471,8 +534,28 @@
             }, (error) => {
                 console.error("Firebase sync error:", error);
                 updateSyncStatus(false);
-            }, {
-                onlyOnce: false
+            });
+        }
+
+        function subscribeToFirebaseArchive() {
+            if (!database || !archiveRef) return;
+
+            onValue(archiveRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (Array.isArray(data)) {
+                        archivedReports = data;
+                    } else if (typeof data === 'object') {
+                        archivedReports = Object.values(data);
+                    } else {
+                        archivedReports = [];
+                    }
+                } else {
+                    archivedReports = [];
+                }
+
+                localStorage.setItem('fuz_archived_reports_v5', JSON.stringify(archivedReports));
+                renderArchivedReports();
             });
         }
 
@@ -482,13 +565,26 @@
             if (!database || !notesRef) return;
 
             try {
-                // Background sync without blocking the UI
                 set(notesRef, notesList).catch(e => {
                     console.error("Error saving notes to Firebase:", e);
                     showToast('حدث خطأ أثناء المزامنة السحابية', 'alert-circle');
                 });
             } catch (e) {
                 console.error("Error initiating save:", e);
+            }
+        }
+
+        async function saveArchiveToFirebase() {
+            localStorage.setItem('fuz_archived_reports_v5', JSON.stringify(archivedReports));
+
+            if (!database || !archiveRef) return;
+
+            try {
+                set(archiveRef, archivedReports).catch(e => {
+                    console.error("Error saving archive to Firebase:", e);
+                });
+            } catch (e) {
+                console.error("Error initiating archive save:", e);
             }
         }
 
@@ -513,6 +609,13 @@
             if (saved) {
                 try {
                     notesList = JSON.parse(saved);
+                } catch(e) {}
+            }
+
+            const savedArchive = localStorage.getItem('fuz_archived_reports_v5');
+            if (savedArchive) {
+                try {
+                    archivedReports = JSON.parse(savedArchive);
                 } catch(e) {}
             }
         }
@@ -597,6 +700,55 @@
             lucide.createIcons();
         }
 
+        function renderArchivedReports() {
+            const container = document.getElementById('archived-list-container');
+            const countElem = document.getElementById('archived-reports-count');
+
+            countElem.textContent = `${archivedReports.length} تقارير مكتملة`;
+
+            if (archivedReports.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 rounded-2xl border border-slate-800 text-center text-slate-500 text-xs">
+                        لا توجد تقارير منتهية أو مؤرشفة حتى الآن.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            archivedReports.forEach((archive, index) => {
+                const archiveCard = document.createElement('div');
+                archiveCard.className = 'glass-card rounded-2xl p-4 flex items-center justify-between border-slate-800 hover:border-amber-500/40 transition';
+
+                archiveCard.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-xs shrink-0">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-200">تقرير مكتمل (${archive.notesCount} نقاط)</h4>
+                            <p class="text-xs text-slate-400 font-mono mt-0.5">تاريخ الإنجاز: ${archive.completedAt}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.viewArchivedReport(${index})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition flex items-center gap-1 cursor-pointer">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-400"></i>
+                            <span>عرض</span>
+                        </button>
+                        <button onclick="window.deleteArchivedReport(${index})" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-xl transition cursor-pointer" title="حذف من الأرشيف">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(archiveCard);
+            });
+
+            lucide.createIcons();
+        }
+
         function setupEventListeners() {
             const noteInput = document.getElementById('note-input');
             setupAutoNumbering(noteInput);
@@ -640,15 +792,95 @@
                 ensureFirstNumber(noteInput);
             });
 
+            document.getElementById('complete-report-btn').addEventListener('click', completeCurrentReport);
             document.getElementById('export-report-btn').addEventListener('click', openExportModal);
             document.getElementById('close-modal-btn').addEventListener('click', closeExportModal);
             document.getElementById('modal-copy-btn').addEventListener('click', copyExportText);
+
+            // Archive View Modal
+            document.getElementById('close-archive-modal-btn').addEventListener('click', () => {
+                document.getElementById('view-archive-modal').classList.add('hidden');
+            });
+            document.getElementById('archive-copy-btn').addEventListener('click', () => {
+                const textarea = document.getElementById('archive-report-text');
+                textarea.select();
+                document.execCommand('copy');
+                showToast('تم نسخ التقرير المؤرشف بنجاح!', 'copy');
+            });
 
             // Edit Modal Events
             document.getElementById('close-edit-modal-btn').addEventListener('click', closeEditNoteModal);
             document.getElementById('cancel-edit-btn').addEventListener('click', closeEditNoteModal);
             document.getElementById('save-edit-btn').addEventListener('click', saveEditedNote);
         }
+
+        // Action: Complete and move report to archive
+        function completeCurrentReport() {
+            if (notesList.length === 0) {
+                showToast('لا توجد أي نوتات لإكمالها!', 'alert-circle');
+                return;
+            }
+
+            if (!confirm('هل أنتي متأكدة من إتمام التقرير الحالي ونقله إلى الأرشيف والبدء من جديد؟')) {
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB');
+            const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+            let compiledText = '';
+            let noteCounter = 1;
+            const reversedNotes = [...notesList].reverse();
+
+            reversedNotes.forEach((item) => {
+                const lines = item.text.split('\n');
+                lines.forEach((line) => {
+                    const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                    if (cleanLine) {
+                        compiledText += `${noteCounter}.${cleanLine}\n`;
+                        noteCounter++;
+                    }
+                });
+            });
+
+            const archivedItem = {
+                id: Date.now(),
+                completedAt: `${dateStr} -${timeStr}`,
+                notesCount: notesList.length,
+                fullText: compiledText.trim(),
+                rawNotes: [...notesList]
+            };
+
+            archivedReports.unshift(archivedItem);
+            notesList = [];
+
+            renderNotes();
+            renderArchivedReports();
+
+            saveNotesToFirebase();
+            saveArchiveToFirebase();
+
+            showToast('تم إنهاء التقرير ونقله للتقارير المنتهية! 🎉', 'check-circle-2');
+        }
+
+        window.viewArchivedReport = function(index) {
+            const report = archivedReports[index];
+            if (!report) return;
+
+            document.getElementById('archive-modal-title').textContent = `تقرير يوم ${report.completedAt}`;
+            document.getElementById('archive-report-text').value = report.fullText;
+            document.getElementById('view-archive-modal').classList.remove('hidden');
+        };
+
+        window.deleteArchivedReport = function(index) {
+            if (!confirm('هل تريد حذف هذا التقرير المؤرشف نهائياً؟')) return;
+
+            archivedReports.splice(index, 1);
+            renderArchivedReports();
+            saveArchiveToFirebase();
+            showToast('تم حذف التقرير من الأرشيف', 'trash-2');
+        };
 
         window.deleteNote = async function(index) {
             notesList.splice(index, 1);

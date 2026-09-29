@@ -80,6 +80,7 @@
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
         }
 
+        /* Fix clipping issue on headers - Added extra space for Persian typography lower glyphs */
         .persian-header {
             text-shadow: 0 0 35px rgba(244, 63, 94, 0.7), 0 0 15px rgba(245, 158, 11, 0.4);
             padding-bottom: 0.8rem;
@@ -349,7 +350,7 @@
         </div>
     </div>
 
-    <!-- View & Edit Archived Report Modal -->
+    <!-- View Archived Report Modal -->
     <div id="view-archive-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="glass-card max-w-2xl w-full rounded-3xl p-6 shadow-2xl border border-amber-500/30 relative">
             <button id="close-archive-modal-btn" class="absolute left-5 top-5 text-slate-400 hover:text-white p-1 cursor-pointer">
@@ -361,18 +362,14 @@
                 </div>
                 <div>
                     <h3 id="archive-modal-title" class="text-lg font-bold text-white">تفاصيل التقرير المكتمل</h3>
-                    <p id="archive-modal-subtitle" class="text-xs text-slate-400">يمكنك تعديل التقرير المؤرشف ومحتوياته ثم الحفظ أو النسخ</p>
+                    <p id="archive-modal-subtitle" class="text-xs text-slate-400">استعراض التقرير المؤرشف ومحتوياته الكاملة</p>
                 </div>
             </div>
 
-            <textarea id="archive-report-text" class="w-full h-72 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-amber-500 select-all resize-none shadow-inner"></textarea>
+            <textarea id="archive-report-text" readonly class="w-full h-72 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-amber-500 select-all resize-none shadow-inner"></textarea>
 
             <div class="mt-5 flex gap-3 justify-end">
-                <button id="archive-save-btn" class="bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-500 hover:to-indigo-500 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-amber-600/20 active:scale-95 cursor-pointer">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                    <span>حفظ التعديلات</span>
-                </button>
-                <button id="archive-copy-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition active:scale-95 cursor-pointer">
+                <button id="archive-copy-btn" class="bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-amber-600/20 active:scale-95 cursor-pointer">
                     <i data-lucide="copy" class="w-4 h-4"></i>
                     <span>نسخ النص</span>
                 </button>
@@ -437,7 +434,6 @@
         let notesList = [];
         let archivedReports = [];
         let currentlyEditingIndex = -1;
-        let currentlyEditingArchiveIndex = -1;
         const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
         async function initApp() {
@@ -504,31 +500,153 @@
                         nextNum = lines.length + 1;
                     }
 
-                    const newLine = `\n${nextNum}. `;                     textarea.value = textBefore + newLine + textAfter;                     textarea.selectionStart = textarea.selectionEnd = cursorPos + newLine.length;                 }             });              textarea.addEventListener('focus', () => {                 ensureFirstNumber(textarea);             });         }          function subscribeToFirebaseNotes() {             if (!database \vert{}\vert{} !notesRef) return;              onValue(notesRef, (snapshot) => {                 const data = snapshot.val();                 if (data) {                     if (Array.isArray(data)) {                         notesList = data;                     } else if (typeof data === 'object') {                         notesList = Object.values(data);                     } else {                         notesList = [];                     }                 } else {                     notesList = [];                 }                                  localStorage.setItem('fuz_notes_data_v5', JSON.stringify(notesList));                 updateSyncStatus(true);                 renderNotes();             }, (error) => {                 console.error("Firebase sync error:", error);                 updateSyncStatus(false);             });         }          function subscribeToFirebaseArchive() {             if (!database \vert{}\vert{} !archiveRef) return;              onValue(archiveRef, (snapshot) => {                 const data = snapshot.val();                 if (data) {                     if (Array.isArray(data)) {                         archivedReports = data;                     } else if (typeof data === 'object') {                         archivedReports = Object.values(data);                     } else {                         archivedReports = [];                     }                 } else {                     archivedReports = [];                 }                  localStorage.setItem('fuz_archived_reports_v5', JSON.stringify(archivedReports));                 renderArchivedReports();             });         }          async function saveNotesToFirebase() {             localStorage.setItem('fuz_notes_data_v5', JSON.stringify(notesList));              if (!database \vert{}\vert{} !notesRef) return;              try {                 set(notesRef, notesList).catch(e => {                     console.error("Error saving notes to Firebase:", e);                     showToast('حدث خطأ أثناء المزامنة السحابية', 'alert-circle');                 });             } catch (e) {                 console.error("Error initiating save:", e);             }         }          async function saveArchiveToFirebase() {             localStorage.setItem('fuz_archived_reports_v5', JSON.stringify(archivedReports));              if (!database \vert{}\vert{} !archiveRef) return;              try {                 set(archiveRef, archivedReports).catch(e => {                     console.error("Error saving archive to Firebase:", e);                 });             } catch (e) {                 console.error("Error initiating archive save:", e);             }         }          function updateSyncStatus(isOnline) {             const syncDot = document.getElementById('sync-dot');             const syncText = document.getElementById('sync-text');             const syncSubtext = document.getElementById('sync-subtext');              if (isOnline) {                 syncDot.className = "w-3 h-3 rounded-full bg-emerald-400 animate-ping";                 syncText.textContent = "متزامنة ومباشرة الآن";                 syncSubtext.textContent = "يصلك كل شيء تحفظه فوراً";             } else {                 syncDot.className = "w-3 h-3 rounded-full bg-amber-400";                 syncText.textContent = "يعمل بالوضع المحلي";                 syncSubtext.textContent = "سيتم حفظ البيانات محلياً";             }         }          function loadFromLocalStorage() {             const saved = localStorage.getItem('fuz_notes_data_v5');             if (saved) {                 try {                     notesList = JSON.parse(saved);                 } catch(e) {}             }              const savedArchive = localStorage.getItem('fuz_archived_reports_v5');             if (savedArchive) {                 try {                     archivedReports = JSON.parse(savedArchive);                 } catch(e) {}             }         }          function calculateCountdown() {             const now = new Date();             const dayOfWeek = now.getDay();              let daysLeft = 0;             if (dayOfWeek <= 4) {                 daysLeft = 4 - dayOfWeek;             } else {                 daysLeft = 7 - dayOfWeek + 4;             }              const elem = document.getElementById('days-remaining');             const label = document.getElementById('days-remaining-label');              if (daysLeft === 0) {                 elem.textContent = 'اليوم الخميس !';                 elem.className = 'text-2xl font-black text-rose-400 animate-pulse';                 label.textContent = 'يوم تسليم التقرير للمدير';             } else {                 elem.textContent = `${daysLeft} أيام`;
+                    const newLine = `\n${nextNum}. `;
+                    textarea.value = textBefore + newLine + textAfter;
+                    textarea.selectionStart = textarea.selectionEnd = cursorPos + newLine.length;
+                }
+            });
+
+            textarea.addEventListener('focus', () => {
+                ensureFirstNumber(textarea);
+            });
+        }
+
+        function subscribeToFirebaseNotes() {
+            if (!database || !notesRef) return;
+
+            onValue(notesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (Array.isArray(data)) {
+                        notesList = data;
+                    } else if (typeof data === 'object') {
+                        notesList = Object.values(data);
+                    } else {
+                        notesList = [];
+                    }
+                } else {
+                    notesList = [];
+                }
+                
+                localStorage.setItem('fuz_notes_data_v5', JSON.stringify(notesList));
+                updateSyncStatus(true);
+                renderNotes();
+            }, (error) => {
+                console.error("Firebase sync error:", error);
+                updateSyncStatus(false);
+            });
+        }
+
+        function subscribeToFirebaseArchive() {
+            if (!database || !archiveRef) return;
+
+            onValue(archiveRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (Array.isArray(data)) {
+                        archivedReports = data;
+                    } else if (typeof data === 'object') {
+                        archivedReports = Object.values(data);
+                    } else {
+                        archivedReports = [];
+                    }
+                } else {
+                    archivedReports = [];
+                }
+
+                localStorage.setItem('fuz_archived_reports_v5', JSON.stringify(archivedReports));
+                renderArchivedReports();
+            });
+        }
+
+        async function saveNotesToFirebase() {
+            localStorage.setItem('fuz_notes_data_v5', JSON.stringify(notesList));
+
+            if (!database || !notesRef) return;
+
+            try {
+                set(notesRef, notesList).catch(e => {
+                    console.error("Error saving notes to Firebase:", e);
+                    showToast('حدث خطأ أثناء المزامنة السحابية', 'alert-circle');
+                });
+            } catch (e) {
+                console.error("Error initiating save:", e);
+            }
+        }
+
+        async function saveArchiveToFirebase() {
+            localStorage.setItem('fuz_archived_reports_v5', JSON.stringify(archivedReports));
+
+            if (!database || !archiveRef) return;
+
+            try {
+                set(archiveRef, archivedReports).catch(e => {
+                    console.error("Error saving archive to Firebase:", e);
+                });
+            } catch (e) {
+                console.error("Error initiating archive save:", e);
+            }
+        }
+
+        function updateSyncStatus(isOnline) {
+            const syncDot = document.getElementById('sync-dot');
+            const syncText = document.getElementById('sync-text');
+            const syncSubtext = document.getElementById('sync-subtext');
+
+            if (isOnline) {
+                syncDot.className = "w-3 h-3 rounded-full bg-emerald-400 animate-ping";
+                syncText.textContent = "متزامنة ومباشرة الآن";
+                syncSubtext.textContent = "يصلك كل شيء تحفظه فوراً";
+            } else {
+                syncDot.className = "w-3 h-3 rounded-full bg-amber-400";
+                syncText.textContent = "يعمل بالوضع المحلي";
+                syncSubtext.textContent = "سيتم حفظ البيانات محلياً";
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('fuz_notes_data_v5');
+            if (saved) {
+                try {
+                    notesList = JSON.parse(saved);
+                } catch(e) {}
+            }
+
+            const savedArchive = localStorage.getItem('fuz_archived_reports_v5');
+            if (savedArchive) {
+                try {
+                    archivedReports = JSON.parse(savedArchive);
+                } catch(e) {}
+            }
+        }
+
+        function calculateCountdown() {
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+
+            let daysLeft = 0;
+            if (dayOfWeek <= 4) {
+                daysLeft = 4 - dayOfWeek;
+            } else {
+                daysLeft = 7 - dayOfWeek + 4;
+            }
+
+            const elem = document.getElementById('days-remaining');
+            const label = document.getElementById('days-remaining-label');
+
+            if (daysLeft === 0) {
+                elem.textContent = 'اليوم الخميس !';
+                elem.className = 'text-2xl font-black text-rose-400 animate-pulse';
+                label.textContent = 'يوم تسليم التقرير للمدير';
+            } else {
+                elem.textContent = `${daysLeft} أيام`;
                 label.textContent = 'متبقي على نهاية الأسبوع (الخميس)';
             }
         }
 
-        // حساب عدد النقاط الفعلية المكتوبة داخل النص وليس عدد الكروت
-        function calculateTotalActualPoints() {
-            let total = 0;
-            notesList.forEach(item => {
-                if (item.text) {
-                    const lines = item.text.split('\n');
-                    lines.forEach(line => {
-                        const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
-                        if (cleanLine.length > 0) {
-                            total++;
-                        }
-                    });
-                }
-            });
-            return total;
-        }
-
         function renderNotes() {
             const container = document.getElementById('notes-list-container');
-            document.getElementById('total-notes-count').textContent = calculateTotalActualPoints();
+            document.getElementById('total-notes-count').textContent = notesList.length;
 
             if (notesList.length === 0) {
                 container.innerHTML = `
@@ -609,15 +727,15 @@
                             <i data-lucide="check-circle" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="text-sm font-bold text-slate-200">تقرير مكتمل (${archive.notesCount || 0} نقاط)</h4>
+                            <h4 class="text-sm font-bold text-slate-200">تقرير مكتمل (${archive.notesCount} نقاط)</h4>
                             <p class="text-xs text-slate-400 font-mono mt-0.5">تاريخ الإنجاز: ${archive.completedAt}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-2">
                         <button onclick="window.viewArchivedReport(${index})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition flex items-center gap-1 cursor-pointer">
-                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-400"></i>
-                            <span>عرض وتعديل</span>
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-400"></i>
+                            <span>عرض</span>
                         </button>
                         <button onclick="window.deleteArchivedReport(${index})" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-xl transition cursor-pointer" title="حذف من الأرشيف">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -637,9 +755,6 @@
 
             const editNoteTextarea = document.getElementById('edit-note-textarea');
             setupAutoNumbering(editNoteTextarea);
-
-            const archiveReportTextarea = document.getElementById('archive-report-text');
-            setupAutoNumbering(archiveReportTextarea);
 
             const form = document.getElementById('note-entry-form');
             form.addEventListener('submit', async (e) => {
@@ -682,14 +797,10 @@
             document.getElementById('close-modal-btn').addEventListener('click', closeExportModal);
             document.getElementById('modal-copy-btn').addEventListener('click', copyExportText);
 
-            // Archive View & Edit Modal Events
+            // Archive View Modal
             document.getElementById('close-archive-modal-btn').addEventListener('click', () => {
                 document.getElementById('view-archive-modal').classList.add('hidden');
-                currentlyEditingArchiveIndex = -1;
             });
-            
-            document.getElementById('archive-save-btn').addEventListener('click', saveEditedArchivedReport);
-
             document.getElementById('archive-copy-btn').addEventListener('click', () => {
                 const textarea = document.getElementById('archive-report-text');
                 textarea.select();
@@ -736,7 +847,7 @@
             const archivedItem = {
                 id: Date.now(),
                 completedAt: `${dateStr} -${timeStr}`,
-                notesCount: noteCounter - 1,
+                notesCount: notesList.length,
                 fullText: compiledText.trim(),
                 rawNotes: [...notesList]
             };
@@ -754,7 +865,6 @@
         }
 
         window.viewArchivedReport = function(index) {
-            currentlyEditingArchiveIndex = index;
             const report = archivedReports[index];
             if (!report) return;
 
@@ -762,38 +872,6 @@
             document.getElementById('archive-report-text').value = report.fullText;
             document.getElementById('view-archive-modal').classList.remove('hidden');
         };
-
-        function saveEditedArchivedReport() {
-            if (currentlyEditingArchiveIndex < 0 || currentlyEditingArchiveIndex >= archivedReports.length) return;
-
-            const textarea = document.getElementById('archive-report-text');
-            const updatedText = textarea.value.trim();
-
-            if (!updatedText) {
-                showToast('لا يمكن حفظ تقرير فارغ', 'alert-circle');
-                return;
-            }
-
-            // إحصاء عدد النقاط للتقرير المؤرشف المعدل
-            let lines = updatedText.split('\n');
-            let actualCount = 0;
-            lines.forEach(line => {
-                if (line.replace(/^\d+\.\s*/, '').trim().length > 0) {
-                    actualCount++;
-                }
-            });
-
-            archivedReports[currentlyEditingArchiveIndex].fullText = updatedText;
-            archivedReports[currentlyEditingArchiveIndex].notesCount = actualCount;
-
-            renderArchivedReports();
-            saveArchiveToFirebase();
-
-            document.getElementById('view-archive-modal').classList.add('hidden');
-            currentlyEditingArchiveIndex = -1;
-
-            showToast('تم حفظ تعديلات التقرير المؤرشف بنجاح! ✨', 'check-circle');
-        }
 
         window.deleteArchivedReport = function(index) {
             if (!confirm('هل تريد حذف هذا التقرير المؤرشف نهائياً؟')) return;

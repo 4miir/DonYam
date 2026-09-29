@@ -140,7 +140,7 @@
                 </h1>
             </div>
             <p class="text-slate-400 text-sm max-w-lg mx-auto font-light leading-relaxed">
-                اكتبي نوتاتك هنا بكل سهولة؛ الترقيم ينزل تلقائياً (1، 2، 3). وعند الضغط على النسخ سيتم استخراج النوتات فقط للمدير جاهزة ومنسقة.
+                اكتبي نوتاتك هنا بكل سهولة؛ الترقيم ينزل تلقائياً (1. 2. 3.). وعند الضغط على النسخ سيتم استخراج النوتات فقط للمدير جاهزة ومنسقة.
             </p>
         </header>
 
@@ -441,6 +441,35 @@
         let currentlyEditingArchiveIndex = -1;
         const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
+        // Modern Cross-Browser Copy Helper
+        async function copyToClipboard(textToCopy) {
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+                    return true;
+                } catch (err) {
+                    console.warn("Clipboard API failed, trying fallback", err);
+                }
+            }
+            
+            // Fallback for older/restricted contexts
+            try {
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = textToCopy;
+                tempTextarea.style.position = 'fixed';
+                tempTextarea.style.left = '-9999px';
+                document.body.appendChild(tempTextarea);
+                tempTextarea.focus();
+                tempTextarea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(tempTextarea);
+                return successful;
+            } catch (err) {
+                console.error("Fallback copy failed", err);
+                return false;
+            }
+        }
+
         async function initApp() {
             lucide.createIcons();
             calculateCountdown();
@@ -485,6 +514,23 @@
             }
         }
 
+        function formatNumberedText(rawText) {
+            if (!rawText) return "";
+            const lines = rawText.split('\n');
+            let counter = 1;
+            const formattedLines = [];
+
+            lines.forEach(line => {
+                const clean = line.replace(/^\d+[\.\-)]?\s*/, '').trim();
+                if (clean) {
+                    formattedLines.push(`${counter}.${clean}`);
+                    counter++;
+                }
+            });
+
+            return formattedLines.join('\n');
+        }
+
         function setupAutoNumbering(textarea) {
             textarea.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -496,7 +542,7 @@
                     const lines = textBefore.split('\n');
                     const lastLine = lines[lines.length - 1];
                     
-                    const match = lastLine.match(/^(\d+)\.\s*(.*)/);
+                    const match = lastLine.match(/^(\d+)[\.\-)]?\s*(.*)/);
                     let nextNum = 1;
                     
                     if (match) {
@@ -522,7 +568,7 @@
                 if (!item.text) return;
                 const lines = item.text.split('\n');
                 lines.forEach(line => {
-                    const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                    const cleanLine = line.replace(/^\d+[\.\-)]?\s*/, '').trim();
                     if (cleanLine.length > 0) {
                         total++;
                     }
@@ -536,7 +582,7 @@
             let total = 0;
             const lines = text.split('\n');
             lines.forEach(line => {
-                const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                const cleanLine = line.replace(/^\d+[\.\-)]?\s*/, '').trim();
                 if (cleanLine.length > 0) {
                     total++;
                 }
@@ -766,9 +812,9 @@
                     </div>
                     
                     <div class="flex items-center gap-2">
-                        <button onclick="window.viewArchivedReport(${index})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition flex items-center gap-1 cursor-pointer">
-                            <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-400"></i>
-                            <span>عرض / تعديل</span>
+                        <button onclick="window.viewArchivedReport(${index})" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1 cursor-pointer font-bold">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span>Edit / تعديل</span>
                         </button>
                         <button onclick="window.deleteArchivedReport(${index})" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-xl transition cursor-pointer" title="حذف من الأرشيف">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -796,12 +842,14 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                const text = noteInput.value.trim();
+                const rawText = noteInput.value.trim();
 
-                if (!text || text === "1.") {
+                if (!rawText || rawText === "1.") {
                     showToast('يرجى كتابة نوتة أو نقطة أولاً', 'alert-circle');
                     return;
                 }
+
+                const formattedText = formatNumberedText(rawText);
 
                 const now = new Date();
                 const dayName = ARABIC_DAYS[now.getDay()];
@@ -810,7 +858,7 @@
 
                 const newNote = {
                     id: Date.now(),
-                    text: text,
+                    text: formattedText,
                     dayName: dayName,
                     dateStr: dateStr,
                     timeStr: timeStr,
@@ -839,11 +887,14 @@
                 currentlyEditingArchiveIndex = -1;
             });
             document.getElementById('save-archive-edit-btn').addEventListener('click', saveEditedArchiveReport);
-            document.getElementById('archive-copy-btn').addEventListener('click', () => {
+            document.getElementById('archive-copy-btn').addEventListener('click', async () => {
                 const textarea = document.getElementById('archive-report-text');
-                textarea.select();
-                document.execCommand('copy');
-                showToast('تم نسخ التقرير المؤرشف بنجاح!', 'copy');
+                const ok = await copyToClipboard(textarea.value);
+                if (ok) {
+                    showToast('تم نسخ التقرير المؤرشف بنجاح!', 'copy');
+                } else {
+                    showToast('تعذر النسخ تلقائياً، يرجى التحديد والنسخ يدوياً', 'alert-circle');
+                }
             });
 
             // Edit Modal Events
@@ -874,7 +925,7 @@
             reversedNotes.forEach((item) => {
                 const lines = item.text.split('\n');
                 lines.forEach((line) => {
-                    const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                    const cleanLine = line.replace(/^\d+[\.\-)]?\s*/, '').trim();
                     if (cleanLine) {
                         compiledText += `${noteCounter}.${cleanLine}\n`;
                         noteCounter++;
@@ -907,7 +958,7 @@
             const report = archivedReports[index];
             if (!report) return;
 
-            document.getElementById('archive-modal-title').textContent = `تقرير يوم ${report.completedAt}`;
+            document.getElementById('archive-modal-title').textContent = `تعديل تقرير يوم ${report.completedAt}`;
             document.getElementById('archive-report-text').value = report.fullText;
             document.getElementById('view-archive-modal').classList.remove('hidden');
         };
@@ -916,21 +967,25 @@
             if (currentlyEditingArchiveIndex < 0 || currentlyEditingArchiveIndex >= archivedReports.length) return;
 
             const archiveTextarea = document.getElementById('archive-report-text');
-            const newText = archiveTextarea.value.trim();
+            const rawText = archiveTextarea.value.trim();
 
-            if (!newText) {
+            if (!rawText) {
                 showToast('يرجى عدم ترك التقرير فارغاً', 'alert-circle');
                 return;
             }
 
-            archivedReports[currentlyEditingArchiveIndex].fullText = newText;
-            archivedReports[currentlyEditingArchiveIndex].notesCount = countArchivePoints(newText);
+            const formatted = formatNumberedText(rawText);
+
+            archivedReports[currentlyEditingArchiveIndex].fullText = formatted;
+            archivedReports[currentlyEditingArchiveIndex].notesCount = countArchivePoints(formatted);
 
             renderArchivedReports();
             saveArchiveToFirebase();
 
             document.getElementById('view-archive-modal').classList.add('hidden');
             currentlyEditingArchiveIndex = -1;
+            
+            // Notification toast on saving archive edits
             showToast('تم حفظ تعديلات الأرشيف بنجاح ✨', 'check-circle');
         }
 
@@ -969,14 +1024,16 @@
             if (currentlyEditingIndex < 0 || currentlyEditingIndex >= notesList.length) return;
 
             const editTextarea = document.getElementById('edit-note-textarea');
-            const newText = editTextarea.value.trim();
+            const rawText = editTextarea.value.trim();
 
-            if (!newText) {
+            if (!rawText) {
                 showToast('يرجى عدم ترك النوتة فارغة', 'alert-circle');
                 return;
             }
 
-            notesList[currentlyEditingIndex].text = newText;
+            const formatted = formatNumberedText(rawText);
+
+            notesList[currentlyEditingIndex].text = formatted;
             renderNotes();
             saveNotesToFirebase();
             closeEditNoteModal();
@@ -995,7 +1052,7 @@
                 reversedNotes.forEach((item) => {
                     const lines = item.text.split('\n');
                     lines.forEach((line) => {
-                        const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                        const cleanLine = line.replace(/^\d+[\.\-)]?\s*/, '').trim();
                         if (cleanLine) {
                             compiledText += `${noteCounter}. ${cleanLine}\n`;
                             noteCounter++;
@@ -1012,12 +1069,15 @@
             document.getElementById('export-modal').classList.add('hidden');
         }
 
-        function copyExportText() {
+        async function copyExportText() {
             const textarea = document.getElementById('compiled-report-text');
-            textarea.select();
-            document.execCommand('copy');
-            showToast('تم نسخ النوتات النقية للمدير بنجاح!', 'copy');
-            closeExportModal();
+            const ok = await copyToClipboard(textarea.value);
+            if (ok) {
+                showToast('تم نسخ النوتات النقية للمدير بنجاح!', 'copy');
+                closeExportModal();
+            } else {
+                showToast('تعذر النسخ تلقائياً، يرجى التحديد والنسخ يدوياً', 'alert-circle');
+            }
         }
 
         function showToast(message, iconName = 'check-circle') {

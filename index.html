@@ -350,7 +350,7 @@
         </div>
     </div>
 
-    <!-- View Archived Report Modal -->
+    <!-- View & Edit Archived Report Modal -->
     <div id="view-archive-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="glass-card max-w-2xl w-full rounded-3xl p-6 shadow-2xl border border-amber-500/30 relative">
             <button id="close-archive-modal-btn" class="absolute left-5 top-5 text-slate-400 hover:text-white p-1 cursor-pointer">
@@ -362,13 +362,17 @@
                 </div>
                 <div>
                     <h3 id="archive-modal-title" class="text-lg font-bold text-white">تفاصيل التقرير المكتمل</h3>
-                    <p id="archive-modal-subtitle" class="text-xs text-slate-400">استعراض التقرير المؤرشف ومحتوياته الكاملة</p>
+                    <p id="archive-modal-subtitle" class="text-xs text-slate-400">يمكنك التعديل مباشرة على التقرير المؤرشف وحفظه</p>
                 </div>
             </div>
 
-            <textarea id="archive-report-text" readonly class="w-full h-72 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-amber-500 select-all resize-none shadow-inner"></textarea>
+            <textarea id="archive-report-text" class="w-full h-72 bg-slate-900 border border-slate-700/80 rounded-2xl p-4 text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-amber-500 select-all resize-none shadow-inner"></textarea>
 
             <div class="mt-5 flex gap-3 justify-end">
+                <button id="save-archive-edit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-indigo-600/20 active:scale-95 cursor-pointer">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    <span>حفظ التعديلات</span>
+                </button>
                 <button id="archive-copy-btn" class="bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-amber-600/20 active:scale-95 cursor-pointer">
                     <i data-lucide="copy" class="w-4 h-4"></i>
                     <span>نسخ النص</span>
@@ -434,6 +438,7 @@
         let notesList = [];
         let archivedReports = [];
         let currentlyEditingIndex = -1;
+        let currentlyEditingArchiveIndex = -1;
         const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
         async function initApp() {
@@ -509,6 +514,34 @@
             textarea.addEventListener('focus', () => {
                 ensureFirstNumber(textarea);
             });
+        }
+
+        function countTotalPoints() {
+            let total = 0;
+            notesList.forEach(item => {
+                if (!item.text) return;
+                const lines = item.text.split('\n');
+                lines.forEach(line => {
+                    const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                    if (cleanLine.length > 0) {
+                        total++;
+                    }
+                });
+            });
+            return total;
+        }
+
+        function countArchivePoints(text) {
+            if (!text) return 0;
+            let total = 0;
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                if (cleanLine.length > 0) {
+                    total++;
+                }
+            });
+            return total;
         }
 
         function subscribeToFirebaseNotes() {
@@ -646,7 +679,7 @@
 
         function renderNotes() {
             const container = document.getElementById('notes-list-container');
-            document.getElementById('total-notes-count').textContent = notesList.length;
+            document.getElementById('total-notes-count').textContent = countTotalPoints();
 
             if (notesList.length === 0) {
                 container.innerHTML = `
@@ -735,7 +768,7 @@
                     <div class="flex items-center gap-2">
                         <button onclick="window.viewArchivedReport(${index})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition flex items-center gap-1 cursor-pointer">
                             <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-400"></i>
-                            <span>عرض</span>
+                            <span>عرض / تعديل</span>
                         </button>
                         <button onclick="window.deleteArchivedReport(${index})" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-xl transition cursor-pointer" title="حذف من الأرشيف">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -755,6 +788,9 @@
 
             const editNoteTextarea = document.getElementById('edit-note-textarea');
             setupAutoNumbering(editNoteTextarea);
+
+            const archiveReportTextarea = document.getElementById('archive-report-text');
+            setupAutoNumbering(archiveReportTextarea);
 
             const form = document.getElementById('note-entry-form');
             form.addEventListener('submit', async (e) => {
@@ -797,10 +833,12 @@
             document.getElementById('close-modal-btn').addEventListener('click', closeExportModal);
             document.getElementById('modal-copy-btn').addEventListener('click', copyExportText);
 
-            // Archive View Modal
+            // Archive View/Edit Modal Events
             document.getElementById('close-archive-modal-btn').addEventListener('click', () => {
                 document.getElementById('view-archive-modal').classList.add('hidden');
+                currentlyEditingArchiveIndex = -1;
             });
+            document.getElementById('save-archive-edit-btn').addEventListener('click', saveEditedArchiveReport);
             document.getElementById('archive-copy-btn').addEventListener('click', () => {
                 const textarea = document.getElementById('archive-report-text');
                 textarea.select();
@@ -847,7 +885,7 @@
             const archivedItem = {
                 id: Date.now(),
                 completedAt: `${dateStr} -${timeStr}`,
-                notesCount: notesList.length,
+                notesCount: countTotalPoints(),
                 fullText: compiledText.trim(),
                 rawNotes: [...notesList]
             };
@@ -865,6 +903,7 @@
         }
 
         window.viewArchivedReport = function(index) {
+            currentlyEditingArchiveIndex = index;
             const report = archivedReports[index];
             if (!report) return;
 
@@ -872,6 +911,28 @@
             document.getElementById('archive-report-text').value = report.fullText;
             document.getElementById('view-archive-modal').classList.remove('hidden');
         };
+
+        async function saveEditedArchiveReport() {
+            if (currentlyEditingArchiveIndex < 0 || currentlyEditingArchiveIndex >= archivedReports.length) return;
+
+            const archiveTextarea = document.getElementById('archive-report-text');
+            const newText = archiveTextarea.value.trim();
+
+            if (!newText) {
+                showToast('يرجى عدم ترك التقرير فارغاً', 'alert-circle');
+                return;
+            }
+
+            archivedReports[currentlyEditingArchiveIndex].fullText = newText;
+            archivedReports[currentlyEditingArchiveIndex].notesCount = countArchivePoints(newText);
+
+            renderArchivedReports();
+            saveArchiveToFirebase();
+
+            document.getElementById('view-archive-modal').classList.add('hidden');
+            currentlyEditingArchiveIndex = -1;
+            showToast('تم حفظ تعديلات الأرشيف بنجاح ✨', 'check-circle');
+        }
 
         window.deleteArchivedReport = function(index) {
             if (!confirm('هل تريد حذف هذا التقرير المؤرشف نهائياً؟')) return;
